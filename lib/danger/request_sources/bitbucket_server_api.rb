@@ -42,9 +42,22 @@ module Danger
         delete(uri)
       end
 
-      def post_comment(text)
+      def post_comment(text, file: nil, line: nil)
         uri = URI("#{pr_api_endpoint}/comments")
-        body = { text: text }.to_json
+
+        # see: https://developer.atlassian.com/static/rest/bitbucket-server/4.11.1/bitbucket-rest.html#idp1409968
+        anchor = {
+             "line" => line,
+             "lineType" => "ADDED",
+             "fileType" => "TO",
+             "path" => file
+        }
+        
+        if file != nil && line != nil
+          body = { text: text, anchor: anchor }.to_json
+        else
+          body = { text: text }.to_json
+        end
         post(uri, body)
       end
 
